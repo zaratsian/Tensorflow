@@ -1,5 +1,4 @@
-<h3>Tensorflow</h3>
-<br>
+<img src="./tensorflow.png" class="inline"/>
 <br>tensorboard --logdir=/tmp/tensorflow_logs/
 <br>
 <br><b>References:</b>
