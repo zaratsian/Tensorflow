@@ -1,4 +1,4 @@
-<img src="./tensorflow.png" class="inline" width="50%" height="50%"/>
+<img src="./tensorflow.png" width="20%" height="20%"/>
 <br>tensorboard --logdir=/tmp/tensorflow_logs/
 <br>
 <br><b>References:</b>
