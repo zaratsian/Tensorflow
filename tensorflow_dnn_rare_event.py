@@ -173,13 +173,19 @@ m = tf.contrib.learn.LinearClassifier(
     model_dir=model_dir)
 '''
 
-
 m = tf.contrib.learn.DNNLinearCombinedClassifier(
     model_dir=model_dir,
     linear_feature_columns=wide_columns,
     dnn_feature_columns=deep_columns,
     dnn_hidden_units=[100, 50])
 
+'''
+m = tf.contrib.learn.DNNLinearCombinedRegressor(
+    model_dir=model_dir,
+    linear_feature_columns=wide_columns,
+    dnn_feature_columns=deep_columns,
+    dnn_hidden_units=[100, 50])
+'''
 
 ###############################################################################################################
 #   Fit Model
