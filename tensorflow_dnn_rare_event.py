@@ -22,19 +22,28 @@ import tensorflow as tf
 
 COLUMNS = ['collision', 'device_id', 'year_month', 'total_trips', 'time_btw_trip_avg', 'miles', 'duration', 'non_idling_secs', 'events_per_mile', 'events_per_hour', 'weekday', 'weekend', 'time_4_9', 'time_9_12', 'time_12_15', 'time_15_19', 'time_19_23', 'time_23_4', 'speed_0', 'speed_1_10', 'speed_10_20', 'speed_20_30', 'speed_30_40', 'speed_40_50', 'speed_50_60', 'speed_60_70', 'speed_70_80', 'speed_ge_80', 'speed_average', 'accel_l_1', 'accel_l_2', 'accel_l_3', 'accel_m_1', 'accel_m_2', 'accel_m_3', 'accel_h_1', 'accel_h_2', 'accel_h_3', 'decel_l_1', 'decel_l_2', 'decel_l_3', 'decel_m_1', 'decel_m_2', 'decel_m_3', 'decel_h_1', 'decel_h_2', 'decel_h_3', 'left_l_1', 'left_l_2', 'left_l_3', 'left_m_1', 'left_m_2', 'left_m_3', 'left_h_1', 'left_h_2', 'left_h_3', 'right_l_1', 'right_l_2', 'right_l_3', 'right_m_1', 'right_m_2', 'right_m_3', 'right_h_1', 'right_h_2', 'right_h_3']
 
-df = pd.read_csv('/tmp/tensorflow_linear/telematics.txt', names=COLUMNS, skipinitialspace=True, skiprows=1)
+df = pd.read_csv('/tmp/telematics.txt', names=COLUMNS, skipinitialspace=True, skiprows=1)
+
+#df.head()
 
 df_collision_1 = df[df['collision']==1]
 df_collision_0 = df[df['collision']!=1]
-df_collision_0_sampled = df_collision_0.sample(1750)
 
-random_sample = np.random.rand(len(df_collision_0_sampled)) < 0.60
+number_of_rare_events     = df_collision_1.shape[0]
+total_bootstrap_records   = number_of_rare_events * 4
+number_of_non_rare_events = int(total_bootstrap_records * 0.75)
 
-df_collision_0_train = df_collision_0_sampled[~random_sample]
-df_collision_0_test  = df_collision_0_sampled[random_sample]
+df_collision_0_sampled = df_collision_0.sample(number_of_non_rare_events)
 
-df_train = pd.concat([df_collision_0_train, df_collision_1], axis=0)
-df_test  = pd.concat([df_collision_0_test, df_collision_1], axis=0)
+random_sample = np.random.rand(total_bootstrap_records) < 0.70
+
+df_bootstrap = pd.concat([df_collision_0_sampled, df_collision_1], axis=0)
+
+df_train = df_bootstrap[random_sample]
+df_test  = df_bootstrap[~random_sample]
+
+df_train.shape
+df_test.shape
 
 ###############################################################################################################
 #   Create Label/Target Column
@@ -191,7 +200,7 @@ m = tf.contrib.learn.DNNLinearCombinedRegressor(
 #   Fit Model
 ###############################################################################################################
 
-m.fit(input_fn=train_input_fn, steps=2000)
+m.fit(input_fn=train_input_fn, steps=5000)
 
 ###############################################################################################################
 #   Evaluate Model and Print Model Fit Statistics
@@ -208,7 +217,6 @@ model_results = m.evaluate(input_fn=eval_input_fn, steps=1)
 
 for key in sorted(model_results):
     print("%s: %s" % (key, model_results[key]))
-
 
 
 
